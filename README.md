@@ -293,7 +293,7 @@ MFGRN can be applied to:
 
 ## Contact
 
-**Zhenhao Zheng**
+**Zhenhao Zan**
 
 GitHub: https://github.com/ZZH706
 
