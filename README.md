@@ -278,40 +278,6 @@ pip install -r requirements.txt
 ```
 
 ---
-
-## Usage
-
-### Step 1: Prepare Expression Data
-
-Input expression matrix format:
-
-| Gene | Sample1 | Sample2 | ... |
-|--------|--------|--------|--------|
-| GeneA | 10.5 | 8.3 | ... |
-| GeneB | 5.2 | 4.8 | ... |
-
-### Step 2: Run Individual Models
-
-```bash
-python run_3DCEMA.py
-python run_DeepSEM.py
-python run_DeepFGRN.py
-```
-
-### Step 3: Consensus Fusion
-
-```bash
-python consensus_fusion.py
-```
-
-### Step 4: Network Evaluation
-
-```bash
-python evaluate_network.py
-```
-
----
-
 ## Applications
 
 MFGRN can be applied to:
