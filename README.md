@@ -163,9 +163,9 @@ MFGRN consistently achieved superior AUROC performance compared with individual 
 
 | Dataset | AUROC |
 |----------|----------|
-| GSE254951 | 0.6530 |
-| GSE117221 Control | 0.5359 |
-| GSE117221 Disease | 0.5339 |
+| GSE254951 | 0.6211 |
+| GSE117221 Control | 0.5492 |
+| GSE117221 Disease | 0.5481 |
 
 These results demonstrate improved robustness and transferability.
 
