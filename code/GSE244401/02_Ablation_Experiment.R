@@ -1,19 +1,32 @@
 # ============================================================
-# Ablation Study Visualization
-# 单方法 vs 两两融合 vs 三者融合
-# 作者：ChatGPT
-# 输出目录：
-# E:/SCD/下游分析/消融实验/
+# Ablation Study Visualization for GRN Fusion Strategies
+# ============================================================
+# Purpose:
+# This script visualizes the results of an ablation study comparing
+# different GRN Gene Regulatory Network fusion strategies across
+# four experimental conditions. It generates bar plots and trend
+# plots to compare single methods, pairwise fusions, and triple
+# fusion approaches.
+#
+# Input:
+#   Hard-coded data frame containing:
+#   - Group: Experimental conditions Control_Pre Control_Post SCA_Pre SCA_Post
+#   - Method: Seven fusion strategies 3DCEMA DeepFGRN DeepSEM DS+DF DS+3D 3D+DF All_Fusion
+#   - AVG_AUROC: Average AUROC values for each method and group combination
+#
+# Output:
+#   1. Ablation_Barplot.pdf and .png - Bar plot showing AUROC across methods
+#   2. Fusion_Trend.pdf and .png - Line plot showing performance trends
+#   3. Ablation_Data.csv - Raw data used for plotting
+#   4. Fusion_Trend_Data.csv - Trend data in long format
+#   5. Console output confirming completion and output directory location
+#
+# Note: All visualizations use consistent color coding:
+#       Single methods blue Pairwise fusions orange Triple fusion green
 # ============================================================
 
 # ============================================================
-# 0. 清空环境
-# ============================================================
-
-rm(list = ls())
-
-# ============================================================
-# 1. 加载R包
+# 1. Load R packages
 # ============================================================
 
 library(ggplot2)
@@ -21,7 +34,7 @@ library(dplyr)
 library(tidyr)
 
 # ============================================================
-# 2. 创建输出目录
+# 2. Create output directory
 # ============================================================
 
 outdir <- "E:/SCD/下游分析/消融实验"
@@ -31,7 +44,7 @@ if (!dir.exists(outdir)) {
 }
 
 # ============================================================
-# 3. 输入数据
+# 3. Input data
 # ============================================================
 
 df <- data.frame(
@@ -159,7 +172,7 @@ df <- data.frame(
 )
 
 # ============================================================
-# 4. 添加类别
+# 4. Add category column
 # ============================================================
 
 df$Category <- rep(
@@ -172,7 +185,7 @@ df$Category <- rep(
 )
 
 # ============================================================
-# 5. 设置顺序
+# 5. Set method order
 # ============================================================
 
 df$Method <- factor(
@@ -189,7 +202,7 @@ df$Method <- factor(
 )
 
 # ============================================================
-# 6. 设置组别顺序
+# 6. Set group order
 # ============================================================
 
 df$Group <- factor(
@@ -203,7 +216,7 @@ df$Group <- factor(
 )
 
 # ============================================================
-# 7. 绘制主图（消融实验柱状图）
+# 7. Create main plot ablation bar plot
 # ============================================================
 
 p1 <- ggplot(
@@ -292,11 +305,11 @@ p1 <- ggplot(
     )
   )
 
-# 显示
+# Display
 print(p1)
 
 # ============================================================
-# 8. 保存主图
+# 8. Save main plot
 # ============================================================
 
 ggsave(
@@ -315,7 +328,7 @@ ggsave(
 )
 
 # ============================================================
-# 9. 构建趋势图数据
+# 9. Build trend data
 # ============================================================
 
 trend_df <- data.frame(
@@ -370,7 +383,7 @@ trend_df <- data.frame(
 )
 
 # ============================================================
-# 10. 转换成长格式
+# 10. Convert to long format
 # ============================================================
 
 trend_long <- trend_df %>%
@@ -381,7 +394,7 @@ trend_long <- trend_df %>%
   )
 
 # ============================================================
-# 11. 设置顺序
+# 11. Set factor order
 # ============================================================
 
 trend_long$Fusion_Level <- factor(
@@ -394,7 +407,7 @@ trend_long$Fusion_Level <- factor(
 )
 
 # ============================================================
-# 12. 绘制趋势图
+# 12. Create trend plot
 # ============================================================
 
 p2 <- ggplot(
@@ -461,11 +474,11 @@ p2 <- ggplot(
     )
   )
 
-# 显示
+# Display
 print(p2)
 
 # ============================================================
-# 13. 保存趋势图
+# 13. Save trend plot
 # ============================================================
 
 ggsave(
@@ -484,7 +497,7 @@ ggsave(
 )
 
 # ============================================================
-# 14. 保存数据表
+# 14. Save data tables
 # ============================================================
 
 write.csv(
@@ -500,11 +513,11 @@ write.csv(
 )
 
 # ============================================================
-# 15. 完成提示
+# 15. Completion message
 # ============================================================
 
 cat("========================================\n")
-cat("消融实验可视化完成！\n")
-cat("输出目录：\n")
+cat("Ablation study visualization complete\n")
+cat("Output directory\n")
 cat(outdir, "\n")
 cat("========================================\n")

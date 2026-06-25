@@ -1,6 +1,33 @@
-# =========================
-# 1. 文件路径
-# =========================
+# ============================================================================
+# ChIP-seq Target Overlap Analysis and Fisher's Exact Test
+# ============================================================================
+# Purpose:
+# This script performs two analyses: 
+# 1. Identifies overlapping genes between ChIP-seq target genes and expression
+#    dataset genes across multiple conditions and transcription factors
+# 2. Performs one-tailed Fisher's exact test to assess enrichment of overlaps
+#    between ChIP-seq targets and expression data
+#
+# Input:
+#   Part 1 - ChIP-seq target files tab-separated with TF and Target columns
+#            Expression matrix files CSV with gene names in first column
+#   Part 2 - Data frame with overlap counts between expression and ChIP data
+#            Background total gene counts for each group
+#
+# Output:
+#   1. Overlap gene lists CSV files for each expression-ChIP combination
+#   2. Overlap summary table CSV with counts and statistics
+#   3. Fisher's exact test results CSV with p-values and odds ratios
+#   4. Console output showing summary tables and test results
+#
+# Note: All gene names are trimmed and non-empty values are retained
+# ============================================================================
+
+# ============================================================================
+# Part 1: Gene Overlap Analysis
+# ============================================================================
+
+# 1. File paths
 chip_files <- c(
   BCL11A = "E:/SCD/数据/CHIP-seq数据/BCL11A_ChIP_targets.tsv",
   GATA1  = "E:/SCD/数据/CHIP-seq数据/GATA1_ChIP_targets.tsv",
@@ -14,19 +41,17 @@ expr_files <- c(
   s2 = "E:/SCD/数据/构建网络的数据/data_s2_no0_transposed.csv"
 )
 
-# 输出文件夹
+# Output folder
 outdir <- "E:/SCD/数据/CHIP-seq数据/overlap_results"
 if (!dir.exists(outdir)) dir.create(outdir, recursive = TRUE)
 
-# =========================
-# 2. 读取 ChIP-seq 靶基因
-# =========================
+# 2. Read ChIP-seq target genes
 read_chip_targets <- function(file) {
   df <- read.delim(file, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
   
-  # 检查列名
+  # Check column names
   if (!all(c("TF", "Target") %in% colnames(df))) {
-    stop(paste("文件缺少 TF 或 Target 列:", file))
+    stop(paste("File missing TF or Target columns:", file))
   }
   
   genes <- unique(trimws(df$Target))
@@ -36,13 +61,11 @@ read_chip_targets <- function(file) {
 
 chip_gene_list <- lapply(chip_files, read_chip_targets)
 
-# =========================
-# 3. 读取表达矩阵第一列基因名
-# =========================
+# 3. Read expression matrix first column gene names
 read_expr_genes <- function(file) {
   df <- read.csv(file, header = TRUE, stringsAsFactors = FALSE, check.names = FALSE)
   
-  # 第一列作为基因名
+  # First column as gene names
   genes <- unique(trimws(df[[1]]))
   genes <- genes[genes != "" & !is.na(genes)]
   return(genes)
@@ -50,9 +73,7 @@ read_expr_genes <- function(file) {
 
 expr_gene_list <- lapply(expr_files, read_expr_genes)
 
-# =========================
-# 4. 计算重叠并保存结果
-# =========================
+# 4. Calculate overlaps and save results
 summary_list <- list()
 
 for (expr_name in names(expr_gene_list)) {
@@ -64,7 +85,7 @@ for (expr_name in names(expr_gene_list)) {
     overlap_genes <- intersect(expr_genes, chip_genes)
     overlap_genes <- sort(unique(overlap_genes))
     
-    # 保存重叠基因列表
+    # Save overlap gene list
     overlap_df <- data.frame(Gene = overlap_genes, stringsAsFactors = FALSE)
     write.csv(
       overlap_df,
@@ -72,7 +93,7 @@ for (expr_name in names(expr_gene_list)) {
       row.names = FALSE
     )
     
-    # 汇总统计
+    # Summary statistics
     summary_list[[paste(expr_name, chip_name, sep = "_")]] <- data.frame(
       Expression_File = expr_name,
       ChIP_File = chip_name,
@@ -86,24 +107,19 @@ for (expr_name in names(expr_gene_list)) {
 
 summary_df <- do.call(rbind, summary_list)
 
-# 保存汇总表
+# Save summary table
 write.csv(summary_df,
           file = file.path(outdir, "overlap_summary.csv"),
           row.names = FALSE)
 
-# 在控制台打印
+# Print to console
 print(summary_df)
 
+# ============================================================================
+# Part 2: Fisher's Exact Test for Enrichment Analysis
+# ============================================================================
 
-
-
-
-
-
-
-# =============================
-# 1. 输入数据
-# =============================
+# 1. Input data
 df <- data.frame(
   Group = c("CON_T1","CON_T1","CON_T1",
             "CON_T2","CON_T2","CON_T2",
@@ -128,7 +144,7 @@ df <- data.frame(
   stringsAsFactors = FALSE
 )
 
-# 四组背景数
+# Background gene counts for each group
 bg_map <- c(
   CON_T1 = 25341,
   CON_T2 = 25288,
@@ -136,12 +152,10 @@ bg_map <- c(
   SCD_T2 = 23932
 )
 
-# 给每行加背景数
+# Add background to each row
 df$Background <- bg_map[df$Group]
 
-# =============================
-# 2. Fisher精确检验（单尾，右尾）
-# =============================
+# 2. Fisher's exact test one-tailed right-tailed
 get_fisher_result <- function(left_only, overlap, right_only, background) {
   
   a <- overlap
@@ -150,10 +164,10 @@ get_fisher_result <- function(left_only, overlap, right_only, background) {
   d <- background - a - b - c
   
   if (d < 0) {
-    stop(paste("出现 d < 0，请检查输入数据。当前 d =", d))
+    stop(paste("d < 0 detected, please check input data. Current d =", d))
   }
   
-  # 2×2列联表
+  # 2x2 contingency table
   mat <- matrix(c(a, b,
                   c, d),
                 nrow = 2,
@@ -161,7 +175,7 @@ get_fisher_result <- function(left_only, overlap, right_only, background) {
   
   ft <- fisher.test(mat, alternative = "greater")
   
-  # 显著性星号
+  # Significance stars
   sig <- if (ft$p.value < 0.001) {
     "***"
   } else if (ft$p.value < 0.01) {
@@ -184,7 +198,7 @@ get_fisher_result <- function(left_only, overlap, right_only, background) {
   ))
 }
 
-# 对每一行计算
+# Calculate for each row
 result_list <- lapply(seq_len(nrow(df)), function(i) {
   res <- get_fisher_result(
     left_only = df$Left_only[i],
@@ -197,13 +211,11 @@ result_list <- lapply(seq_len(nrow(df)), function(i) {
 
 result_df <- do.call(rbind, result_list)
 
-# =============================
-# 3. 美化输出
-# =============================
+# 3. Format output
 result_df$p_value_scientific <- format(result_df$p_value, scientific = TRUE, digits = 4)
 result_df$odds_ratio_round <- round(result_df$odds_ratio, 4)
 
-# 调整列顺序
+# Reorder columns
 result_df <- result_df[, c(
   "Group", "TF", "Background",
   "a", "b", "c", "d",
@@ -214,9 +226,7 @@ result_df <- result_df[, c(
 
 print(result_df)
 
-# =============================
-# 4. 保存结果
-# =============================
+# 4. Save results
 write.csv(result_df,
           file = "E:/SCD/数据/fisher_one_tailed_results.csv",
           row.names = FALSE)

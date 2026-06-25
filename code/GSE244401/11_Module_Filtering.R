@@ -1,3 +1,35 @@
+# ============================================================================
+# Script: Infomap Module Detection and Key TF Enrichment Analysis
+# ============================================================================
+# Description:
+#   This script identifies functional modules from gene regulatory networks 
+#   using the Infomap algorithm, filters modules by size, and selects the 
+#   top 10 modules enriched with key transcription factors (TFs) for each 
+#   condition (c1, c2, s1, s2). Results are exported to an Excel workbook.
+#
+# Input data:
+#   1. Four network edge lists (TF-Target interactions):
+#      - E:/SCD/数据/合并后的数据/c1_TF_TARGET_cleaned.txt
+#      - E:/SCD/数据/合并后的数据/c2_TF_TARGET_cleaned.txt
+#      - E:/SCD/数据/合并后的数据/s1_TF_TARGET_cleaned.txt
+#      - E:/SCD/数据/合并后的数据/s2_TF_TARGET_cleaned.txt
+#      Format: at least two columns (Source, Target), optional third column (Weight)
+#   2. Four key transcription factor lists (one per condition):
+#      - E:/SCD/下游分析/关键转录因子/two_or_more_overlap_c1_TF_TARGET_poisson_TF_Gene_only.txt
+#      - E:/SCD/下游分析/关键转录因子/two_or_more_overlap_c2_TF_TARGET_poisson_TF_Gene_only.txt
+#      - E:/SCD/下游分析/关键转录因子/two_or_more_overlap_s1_TF_TARGET_poisson_TF_Gene_only.txt
+#      - E:/SCD/下游分析/关键转录因子/two_or_more_overlap_s2_TF_TARGET_poisson_TF_Gene_only.txt
+#      Format: one TF gene symbol per line
+#
+# Output data:
+#   1. Rdata file: Infomap_modules_10_300_all.Rdata (all detected modules)
+#   2. Excel file: Top10_modules_with_keyTF_infomap_10_300.xlsx
+#      - Four condition sheets (c1, c2, s1, s2), each with three worksheets:
+#        a) Summary: ModuleID, ModuleSize, KeyTF_Count, KeyTFs
+#        b) Genes: ModuleID and all genes in each module
+#        c) KeyTFs: ModuleID and key TF genes only
+# ============================================================================
+
 library(data.table)
 library(openxlsx)
 library(miRspongeR)
@@ -5,7 +37,7 @@ library(miRspongeR)
 set.seed(123)
 
 ## =========================
-## 0. 参数与输出目录
+## 0. Parameters and output directory
 ## =========================
 min_size <- 10
 max_size <- 300
@@ -14,7 +46,7 @@ out_dir <- "E:/SCD/下游分析/功能模块/模块"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 ## =========================
-## 1. 读取四个网络
+## 1. Read four networks
 ## =========================
 net_files <- list(
   c1 = "E:/SCD/数据/合并后的数据/c1_TF_TARGET_cleaned.txt",
@@ -23,12 +55,12 @@ net_files <- list(
   s2 = "E:/SCD/数据/合并后的数据/s2_TF_TARGET_cleaned.txt"
 )
 
-# 兼容不同列名/列数：至少保证前两列是边的两端；第三列(如有)作为 weight
+# Compatible with different column names/numbers: ensure first two columns are edge ends; third column (if present) as weight
 normalize_linklist <- function(dt) {
   if (!is.data.table(dt)) dt <- as.data.table(dt)
-  if (ncol(dt) < 2) stop("网络边文件至少需要两列（TF/Source, Target）")
+  if (ncol(dt) < 2) stop("Network edge file needs at least two columns (TF/Source, Target)")
   
-  # 统一列名（不改变内容）
+  # Unify column names (without changing content)
   if (ncol(dt) == 2) {
     setnames(dt, names(dt)[1:2], c("Source", "Target"))
   } else {
@@ -38,45 +70,45 @@ normalize_linklist <- function(dt) {
 }
 
 linklists <- lapply(net_files, function(fp) {
-  if (!file.exists(fp)) stop("网络文件不存在：", fp)
+  if (!file.exists(fp)) stop("Network file does not exist: ", fp)
   normalize_linklist(fread(fp))
 })
 
 ## =========================
-## 2. 仅用 infomap 做模块识别 + 过滤模块大小 10~300
+## 2. Use infomap for module detection + filter module size 10~300
 ## =========================
 run_infomap_and_filter <- function(linklist_dt, min_size = 10, max_size = 300) {
-  # netModule 的 modulesize 是“下限”；上限用后处理过滤实现
+  # netModule's modulesize is "lower bound"; upper bound is filtered via post-processing
   clu <- netModule(linklist_dt, method = "infomap", modulesize = min_size)
   
   if (is.null(clu) || length(clu) == 0) return(clu)
   
-  # 给模块命名（如果没有名字）
+  # Name modules if not already named
   if (is.null(names(clu)) || any(names(clu) == "")) {
     names(clu) <- paste0("M", seq_along(clu))
   }
   
-  # 过滤上限
+  # Filter upper bound
   sizes <- sapply(clu, function(x) length(unique(x)))
   clu <- clu[sizes >= min_size & sizes <= max_size]
   
-  # 重新编号/命名（可选：更整齐）
+  # Renumber/re-name for clarity
   if (length(clu) > 0) names(clu) <- paste0("M", seq_along(clu))
   clu
 }
 
 clusters <- lapply(linklists, run_infomap_and_filter, min_size = min_size, max_size = max_size)
 
-# 保存模块对象（可选）
+# Save module objects (optional)
 save(clusters, file = file.path(out_dir, sprintf("Infomap_modules_%s_%s_all.Rdata", min_size, max_size)))
 
-cat("\nInfomap 模块数量（过滤 10~300 后）：\n")
+cat("\nInfomap module counts (after filtering 10~300):\n")
 for (nm in names(clusters)) {
-  cat(sprintf("%-3s : %d 个模块\n", nm, length(clusters[[nm]])))
+  cat(sprintf("%-3s : %d modules\n", nm, length(clusters[[nm]])))
 }
 
 ## =========================
-## 3. 读取四个关键转录因子列表
+## 3. Read four key transcription factor lists
 ## =========================
 tf_files <- list(
   c1 = "E:/SCD/下游分析/关键转录因子/two_or_more_overlap_c1_TF_TARGET_poisson_TF_Gene_only.txt",
@@ -86,7 +118,7 @@ tf_files <- list(
 )
 
 read_tf_list <- function(fp) {
-  if (!file.exists(fp)) stop("TF 列表文件不存在：", fp)
+  if (!file.exists(fp)) stop("TF list file does not exist: ", fp)
   x <- readLines(fp, warn = FALSE, encoding = "UTF-8")
   x <- trimws(x)
   x <- x[x != ""]
@@ -95,14 +127,14 @@ read_tf_list <- function(fp) {
 
 tf_lists <- lapply(tf_files, read_tf_list)
 
-cat("\n关键 TF 列表大小：\n")
+cat("\nKey TF list sizes:\n")
 for (nm in names(tf_lists)) {
-  cat(sprintf("%-3s : %d 个 TF\n", nm, length(tf_lists[[nm]])))
+  cat(sprintf("%-3s : %d TFs\n", nm, length(tf_lists[[nm]])))
 }
 
 ## =========================
-## 4. 筛选“前十个包含关键 TF 的模块”
-##    排序：KeyTF_Count（降序）-> ModuleSize（降序）-> ModuleID（升序）
+## 4. Select "top 10 modules containing key TFs"
+##    Sorting: KeyTF_Count (descending) -> ModuleSize (descending) -> ModuleID (ascending)
 ## =========================
 get_top10_modules_with_keyTF <- function(cluster_list, key_tfs, top_n = 10) {
   if (is.null(cluster_list) || length(cluster_list) == 0) {
@@ -149,7 +181,7 @@ get_top10_modules_with_keyTF <- function(cluster_list, key_tfs, top_n = 10) {
 }
 
 ## =========================
-## 5. 对 c1/c2/s1/s2 各自筛选并导出 Excel
+## 5. Process c1/c2/s1/s2 individually and export to Excel
 ## =========================
 wb <- createWorkbook()
 
@@ -176,7 +208,7 @@ for (cond in c("c1", "c2", "s1", "s2")) {
   freezePane(wb, sh2, firstRow = TRUE)
   freezePane(wb, sh3, firstRow = TRUE)
   
-  cat(sprintf("\n[%s] 含关键TF的模块数（过滤后）：%d；导出Top10：%d\n",
+  cat(sprintf("\n[%s] Modules containing key TFs (after filtering): %d; Exported Top10: %d\n",
               cond,
               ifelse(is.null(clusters[[cond]]), 0, length(clusters[[cond]])),
               nrow(res$summary)))
@@ -185,4 +217,4 @@ for (cond in c("c1", "c2", "s1", "s2")) {
 out_xlsx <- file.path(out_dir, sprintf("Top10_modules_with_keyTF_infomap_%s_%s.xlsx", min_size, max_size))
 saveWorkbook(wb, out_xlsx, overwrite = TRUE)
 
-cat("\n全部完成！结果已导出到：\n", out_xlsx, "\n")
+cat("\nAll done! Results exported to:\n", out_xlsx, "\n")
