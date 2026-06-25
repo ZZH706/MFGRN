@@ -1,71 +1,36 @@
-# MFGRN: Multi-Method Fusion for Gene Regulatory Network Inference
+# SCD-MFGRN: Multi-Algorithm Fusion for Constructing a Sickle Cell Disease-Specific Gene Regulatory Network
 
 ## Overview
 
-MFGRN (Multi-Method Fusion Gene Regulatory Network Inference) is a consensus-based framework for gene regulatory network (GRN) reconstruction that integrates multiple deep learning models to improve network inference accuracy, robustness, and biological reliability.
+SCD-MFGRN (Sickle Cell Disease–Multi-Algorithm Fusion Gene Regulatory Network) is a consensus-based framework designed for constructing high-confidence gene regulatory networks (GRNs) in Sickle Cell Disease (SCD).
 
-The framework combines three complementary GRN inference approaches:
+The framework integrates three complementary deep learning-based GRN inference methods:
 
-- **3DCEMA** – 3D convolutional neural network based GRN inference
-- **DeepSEM** – Variational autoencoder and structural equation model based GRN inference
-- **DeepFGRN** – Directed graph embedding and GAN based GRN inference
+* **3DCEMA** – 3D convolutional neural network-based GRN inference
+* **DeepSEM** – Variational autoencoder and structural equation model-based GRN inference
+* **DeepFGRN** – Directed graph embedding and GAN-based GRN inference
 
-By integrating the strengths of multiple methods and retaining only consensus-supported regulatory interactions, MFGRN generates high-confidence gene regulatory networks with improved robustness and reduced false positives.
+By combining predictions from multiple algorithms and retaining consensus-supported regulatory interactions, SCD-MFGRN reduces false positives and improves the robustness and biological reliability of inferred regulatory networks.
 
-This repository contains the complete MFGRN framework and its application to the study of transcriptional regulatory mechanisms in Sickle Cell Disease (SCD).
+The framework was developed using whole-blood RNA-seq datasets from pediatric SCD patients and healthy controls and was further validated using independent external datasets.
 
 ---
 
 ## Motivation
 
-Gene regulatory network inference is a fundamental task in systems biology. However, different inference algorithms often generate inconsistent results due to methodological biases and dataset-specific characteristics.
+Sickle Cell Disease (SCD) is a hereditary hemoglobinopathy characterized by chronic hemolysis, inflammation, vascular dysfunction, and abnormal erythropoiesis.
 
-Common challenges include:
+Understanding transcriptional regulatory mechanisms underlying SCD is critical for identifying key regulators and potential therapeutic targets. However, different GRN inference algorithms often generate inconsistent regulatory networks due to methodological biases and dataset-specific characteristics.
 
-- High false-positive rates
-- Limited robustness across datasets
-- Poor reproducibility
-- Model-specific prediction bias
-
-MFGRN addresses these limitations through a consensus fusion strategy that integrates multiple deep learning models and retains only high-confidence regulatory interactions supported by multiple methods.
+To address these limitations, SCD-MFGRN integrates multiple deep learning-based GRN inference methods and constructs consensus-supported regulatory networks with improved reliability and biological interpretability.
 
 ---
 
-## MFGRN Workflow
+## Research Workflow
 
-```text
-RNA-seq Expression Matrix
-           │
-           ▼
- ┌─────────────────────┐
- │   3DCEMA Prediction │
- └─────────────────────┘
-           │
-           ▼
- ┌─────────────────────┐
- │ DeepSEM Prediction  │
- └─────────────────────┘
-           │
-           ▼
- ┌─────────────────────┐
- │ DeepFGRN Prediction │
- └─────────────────────┘
-           │
-           ▼
- Retain Top 10% Edges
-           │
-           ▼
- Consensus Voting
-           │
-           ▼
- High-confidence GRN
-           │
-           ├── Network topology analysis
-           ├── Key TF identification
-           ├── GO enrichment analysis
-           ├── Module detection
-           └── ChIP-seq validation
-```
+<p align="center">
+  <img src="Research process.svg" alt="SCD-MFGRN Workflow" width="1000">
+</p>
 
 ---
 
@@ -77,26 +42,26 @@ RNA-seq Expression Matrix
 
 Whole-blood bulk RNA-seq dataset containing:
 
-- 23 pediatric SCD patients
-- 17 healthy controls
+* 23 pediatric SCD patients
+* 17 healthy controls
 
 Samples were collected before and after exercise.
 
 ### Experimental Groups
 
-| Group | Description |
-|---------|------------|
+| Group  | Description                      |
+| ------ | -------------------------------- |
 | CON_T1 | Healthy controls before exercise |
-| CON_T2 | Healthy controls after exercise |
-| SCD_T1 | SCD patients before exercise |
-| SCD_T2 | SCD patients after exercise |
+| CON_T2 | Healthy controls after exercise  |
+| SCD_T1 | SCD patients before exercise     |
+| SCD_T2 | SCD patients after exercise      |
 
 ### External Validation Datasets
 
-- GSE254951
-- GSE117221
+* GSE254951
+* GSE117221
 
-These datasets were used to evaluate the generalization capability of MFGRN.
+These datasets were used to evaluate the generalization capability of SCD-MFGRN.
 
 ---
 
@@ -104,45 +69,45 @@ These datasets were used to evaluate the generalization capability of MFGRN.
 
 ### Step 1: Data Preprocessing
 
-- Gene ID conversion
-- Expression matrix normalization
-- Removal of low-expression genes
-- Human transcription factor annotation
-- Construction of TF candidate sets
+* Gene ID conversion
+* Expression matrix normalization
+* Removal of low-expression genes
+* Human transcription factor annotation
+* Construction of TF candidate sets
 
 ### Step 2: Independent GRN Inference
 
 Three deep learning models independently infer TF-target regulatory relationships.
 
-| Method | Description |
-|----------|----------|
-| 3DCEMA | CNN-based regulatory pattern learning |
-| DeepSEM | Variational autoencoder + SEM |
-| DeepFGRN | Directed graph embedding + GAN |
+| Method   | Description                                         |
+| -------- | --------------------------------------------------- |
+| 3DCEMA   | CNN-based regulatory pattern learning               |
+| DeepSEM  | Variational autoencoder + Structural Equation Model |
+| DeepFGRN | Directed graph embedding + GAN                      |
 
 ### Step 3: Consensus Fusion
 
 For each model:
 
-1. Rank regulatory interactions by confidence score
-2. Retain top 10% predicted edges
+1. Rank regulatory interactions according to confidence scores
+2. Retain the top 10% regulatory edges
 
-MFGRN then:
+SCD-MFGRN then:
 
-- Integrates predictions from all models
-- Performs consensus voting
-- Retains shared regulatory interactions
-- Constructs the final high-confidence GRN
+* Integrates predictions from all methods
+* Performs consensus voting
+* Retains shared regulatory interactions
+* Constructs a final high-confidence GRN
 
 ### Step 4: Network Validation
 
 Validation strategies include:
 
-- ChIP-seq supported interactions
-- AUROC evaluation
-- Fisher's exact test
-- Random network comparison
-- External dataset validation
+* ChIP-seq supported interactions
+* AUROC evaluation
+* Fisher’s exact test
+* Random network comparison
+* External dataset validation
 
 ---
 
@@ -150,75 +115,77 @@ Validation strategies include:
 
 ### Internal Validation (GSE244401)
 
-| Group | Best Single Model | MFGRN |
-|---------|---------|---------|
-| CON_T1 | 0.6598 | **0.7608** |
-| CON_T2 | 0.5891 | **0.6361** |
-| SCD_T1 | 0.7097 | **0.7109** |
-| SCD_T2 | 0.7357 | **0.7851** |
+| Group  | Best Single Model | SCD-MFGRN  |
+| ------ | ----------------- | ---------- |
+| CON_T1 | 0.6598            | **0.7608** |
+| CON_T2 | 0.5891            | **0.6361** |
+| SCD_T1 | 0.7097            | **0.7109** |
+| SCD_T2 | 0.7357            | **0.7851** |
 
-MFGRN consistently achieved superior AUROC performance compared with individual methods.
+SCD-MFGRN consistently achieved superior AUROC performance compared with individual inference methods.
 
 ### External Validation
 
-| Dataset | AUROC |
-|----------|----------|
-| GSE254951 | 0.6211 |
+| Dataset           | AUROC  |
+| ----------------- | ------ |
+| GSE254951         | 0.6211 |
 | GSE117221 Control | 0.5492 |
 | GSE117221 Disease | 0.5481 |
 
-These results demonstrate improved robustness and transferability.
+These results demonstrate improved robustness and transferability across independent datasets.
 
 ---
 
-## Biological Findings
+## Biological Insights from SCD-MFGRN
 
-### Key Regulatory Factors
+### Key Transcription Factors
 
-MFGRN identified several biologically relevant transcription factors associated with SCD, including:
+SCD-MFGRN identified several transcription factors with established roles in hematopoiesis and erythroid differentiation:
 
-- GATA1
-- TAL1
-- RUNX1
-- SPI1
-- MYB
-- BCL11A
+* GATA1
+* TAL1
+* RUNX1
+* SPI1
+* MYB
+* BCL11A
 
-### Functional Characteristics
+### Functional Enrichment
 
-SCD-related regulatory networks were enriched in:
+The inferred regulatory networks were significantly enriched in biological processes associated with:
 
-- Rhythmic process
-- Respiratory system development
-- Immune response
-- Hematopoiesis
-- Hypoxia-related regulation
+* Hematopoiesis
+* Immune regulation
+* Hypoxia response
+* Respiratory system development
+* Circadian rhythm-related processes
 
-### Network Topology
+### Network Characteristics
 
-The inferred GRNs exhibited:
+Network topology analysis demonstrated that SCD-MFGRN-generated networks exhibited:
 
-- Small-world characteristics
-- High clustering coefficients
-- Efficient information transfer
-- Significant deviation from random networks
+* Small-world properties
+* High clustering coefficients
+* Efficient information transfer
+* Significant deviation from random networks
 
 ### Functional Modules
 
-Identified modules were enriched in:
+Module analysis revealed subnetworks associated with:
 
-- Oxidative stress response
-- Cytokine signaling
-- Cellular senescence
-- Metabolic regulation
-- Inflammatory pathways
+* Oxidative stress response
+* Cytokine signaling
+* Cellular senescence
+* Inflammatory regulation
+* Metabolic processes
 
 ---
 
 ## Repository Structure
 
 ```text
-MFGRN/
+SCD-MFGRN/
+│
+├── Research process.svg
 │
 ├── 3DCEMA/
 │   └── 3DCEMA implementation
@@ -232,17 +199,17 @@ MFGRN/
 ├── data/
 │   └── Expression matrices and TF lists
 │
-├── results/
-│   ├── Predicted networks
-│   ├── Validation results
-│   ├── GO enrichment
-│   └── Module analysis
-│
 ├── scripts/
 │   ├── Data preprocessing
 │   ├── Consensus fusion
 │   ├── Network evaluation
 │   └── Visualization
+│
+├── results/
+│   ├── Predicted networks
+│   ├── Validation results
+│   ├── GO enrichment analysis
+│   └── Module analysis
 │
 └── README.md
 ```
@@ -278,16 +245,18 @@ pip install -r requirements.txt
 ```
 
 ---
+
 ## Applications
 
-MFGRN can be applied to:
+SCD-MFGRN can be applied to:
 
-- Disease-specific GRN reconstruction
-- Cancer systems biology
-- Hematological disease studies
-- Multi-omics integration
-- Regulatory factor discovery
-- Functional module identification
+* Disease-specific GRN reconstruction
+* Hematological disease studies
+* Cancer systems biology
+* Regulatory factor discovery
+* Multi-omics integration
+* Functional module identification
+* Systems biology research
 
 ---
 
@@ -295,15 +264,32 @@ MFGRN can be applied to:
 
 **Zhenhao Zan**
 
-GitHub: https://github.com/ZZH706
+GitHub:
+
+https://github.com/ZZH706
 
 Research Interests:
 
-- Gene Regulatory Networks
-- Deep Learning for Bioinformatics
-- Systems Biology
-- Multi-omics Analysis
-- Sickle Cell Disease
+* Gene Regulatory Networks
+* Deep Learning for Bioinformatics
+* Systems Biology
+* Multi-omics Analysis
+* Sickle Cell Disease
+
+---
+
+## Citation
+
+If you use SCD-MFGRN in your research, please cite:
+
+```bibtex
+@article{zan2026scdmfgrn,
+  title={SCD-MFGRN: Multi-Algorithm Fusion for Constructing a Sickle Cell Disease-Specific Gene Regulatory Network},
+  author={Zan, Zhenhao and others},
+  journal={Under Review},
+  year={2026}
+}
+```
 
 ---
 
@@ -313,4 +299,4 @@ This project is released under the MIT License.
 
 ---
 
-⭐ If you find MFGRN useful, please consider giving this repository a star.
+⭐ If you find SCD-MFGRN useful, please consider giving this repository a star.
