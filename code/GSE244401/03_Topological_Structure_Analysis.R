@@ -15,7 +15,7 @@ library(tools)
 # -------------------- Parameters ----------------------
 edge_file <- "filtered_networks/edges_s2_deepsem.tsv"   # Change this to use different file
 score_thr <- 0          # EdgeWeight threshold
-N_rand    <- 10         # Number of random networks
+N_rand    <- 1000         # Number of random networks
 set.seed(123)           # Reproducible results
 
 # -------------------- Read data and build graph ----------------
