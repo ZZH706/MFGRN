@@ -1,19 +1,12 @@
 # SCD-MFGRN: Multi-Algorithm Fusion for Constructing a Sickle Cell Disease-Specific Gene Regulatory Network
-
 ## Overview
-
 SCD-MFGRN (Sickle Cell Disease–Multi-Algorithm Fusion Gene Regulatory Network) is a consensus-based framework designed for constructing high-confidence gene regulatory networks (GRNs) in Sickle Cell Disease (SCD).
-
 The framework integrates three complementary deep learning-based GRN inference methods:
-
 * **3DCEMA** – 3D convolutional neural network-based GRN inference
 * **DeepSEM** – Variational autoencoder and structural equation model-based GRN inference
 * **DeepFGRN** – Directed graph embedding and GAN-based GRN inference
-
 By combining predictions from multiple algorithms and retaining consensus-supported regulatory interactions, SCD-MFGRN reduces false positives and improves the robustness and biological reliability of inferred regulatory networks.
-
 The framework was developed using whole-blood RNA-seq datasets from pediatric SCD patients and healthy controls and was further validated using independent external datasets.
-
 ---
 
 ## Motivation
