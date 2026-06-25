@@ -111,31 +111,6 @@ Validation strategies include:
 
 ---
 
-## Performance
-
-### Internal Validation (GSE244401)
-
-| Group  | Best Single Model | SCD-MFGRN  |
-| ------ | ----------------- | ---------- |
-| CON_T1 | 0.6598            | **0.7608** |
-| CON_T2 | 0.5891            | **0.6361** |
-| SCD_T1 | 0.7097            | **0.7109** |
-| SCD_T2 | 0.7357            | **0.7851** |
-
-SCD-MFGRN consistently achieved superior AUROC performance compared with individual inference methods.
-
-### External Validation
-
-| Dataset           | AUROC  |
-| ----------------- | ------ |
-| GSE254951         | 0.6211 |
-| GSE117221 Control | 0.5492 |
-| GSE117221 Disease | 0.5481 |
-
-These results demonstrate improved robustness and transferability across independent datasets.
-
----
-
 ## Biological Insights from SCD-MFGRN
 
 ### Key Transcription Factors
