@@ -15,7 +15,7 @@ Sickle Cell Disease (SCD) is a hereditary hemoglobinopathy characterized by chro
 
 Understanding transcriptional regulatory mechanisms underlying SCD is critical for identifying key regulators and potential therapeutic targets. However, different GRN inference algorithms often generate inconsistent regulatory networks due to methodological biases and dataset-specific characteristics.
 
-To address these limitations, SCD-MFGRN integrates multiple deep learning-based GRN inference methods and constructs consensus-supported regulatory networks with improved reliability and biological interpretability.
+To address these limitations, MFGRN integrates multiple deep learning-based GRN inference methods and constructs consensus-supported regulatory networks with improved reliability and biological interpretability.
 
 ---
 
