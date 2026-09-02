@@ -180,25 +180,4 @@ Research Interests:
 
 ---
 
-## Citation
-
-If you use SCD-MFGRN in your research, please cite:
-
-```bibtex
-@article{zan2026scdmfgrn,
-  title={SCD-MFGRN: Multi-Algorithm Fusion for Constructing a Sickle Cell Disease-Specific Gene Regulatory Network},
-  author={Zan, Zhenhao and others},
-  journal={Under Review},
-  year={2026}
-}
-```
-
----
-
-## License
-
-This project is released under the MIT License.
-
----
-
 ⭐ If you find SCD-MFGRN useful, please consider giving this repository a star.
