@@ -180,4 +180,4 @@ Research Interests:
 
 ---
 
-⭐ If you find SCD-MFGRN useful, please consider giving this repository a star.
+⭐ If you find MFGRN useful, please consider giving this repository a star.
